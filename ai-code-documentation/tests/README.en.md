@@ -13,6 +13,9 @@ These tests validate the behavior of the `ai-code-documentation` skill.
 | `test03-explicit-comment` | Developer explicitly requests comments | Add the requested comments |
 | `test04-ai-note` | Non-obvious engineering constraint | Record the knowledge in `AI_NOTES.md` |
 | `test05-no-duplicate` | Existing note already documents the issue | Do not create a duplicate note |
+| `test06-no-change-history` | Instruction mentions dates and verification status | No change history in source; status goes in AI_NOTES |
+| `test07-cleanup-mode` | Developer asks to clean up changelog-style comments | Confirm scope, change only comments, move knowledge to AI_NOTES |
+| `test08-review-report` | Developer asks for a review of redundant comments | Report only, no file changes |
 
 ## Recommended Test Procedure
 

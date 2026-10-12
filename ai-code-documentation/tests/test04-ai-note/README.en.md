@@ -17,8 +17,8 @@ Ask the AI:
 > Update `MoveTo` so that the robot receives coordinates in millimeters.
 >
 > The application's internal coordinate system uses meters.
->
-> Keep the production code clean and document any non-obvious protocol requirement according to the project's AI documentation rules.
+
+The instruction deliberately does not mention AI_NOTES or documentation rules, to verify that the skill triggers on its own.
 
 ## Expected Behavior
 

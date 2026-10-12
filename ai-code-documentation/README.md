@@ -76,7 +76,10 @@ ai-code-documentation/
     ├── test02-important-comment/ # 保留重要的人工註解
     ├── test03-explicit-comment/  # 開發者明確要求時要加註解
     ├── test04-ai-note/           # 非顯而易見的知識寫進 AI_NOTES.md
-    └── test05-no-duplicate/      # 不建立重複筆記
+    ├── test05-no-duplicate/      # 不建立重複筆記
+    ├── test06-no-change-history/ # 原始碼不寫變更歷程
+    ├── test07-cleanup-mode/      # 清理模式
+    └── test08-review-report/     # 審查只出報告
 ```
 
 每個測試資料夾都有 `README.md`（中文）與 `README.en.md`（英文）。
@@ -155,7 +158,7 @@ AI 依下列順序決定語言，採用第一個符合的：
 
 ### 觸發
 
-Claude Code 會依 `SKILL.md` frontmatter 的 `description` 自動判斷：新增、修改、重構或除錯原始碼時載入。也可以手動輸入：
+Claude Code 會依 `SKILL.md` frontmatter 的 `description` 自動判斷：新增、修改、重構或除錯原始碼時，以及要求整理或審查註解時載入。也可以手動輸入：
 
 ```text
 /ai-code-documentation
@@ -167,7 +170,7 @@ Claude Code 會依 `SKILL.md` frontmatter 的 `description` 自動判斷：新�
 disable-model-invocation: true
 ```
 
-> `openai.yaml` 裡的 `allow_implicit_invocation: false` 是 OpenAI/Codex 的設定，Claude Code 不會讀取它。
+> `openai.yaml` 是 OpenAI/Codex 的設定，Claude Code 不會讀取它。其中 `allow_implicit_invocation: true` 讓 Codex 也能自動觸發，與 Claude Code 的行為一致；要改成只能手動觸發，兩邊都要調整。
 
 ### 整理既有註解（清理模式）
 
@@ -193,7 +196,7 @@ AI 會依 [`references/cleanup.md`](references/cleanup.md) 的流程：先掃描
 | ---- | -------- | ---- | ---- | ---: | ---- | ---- | ---- |
 | `src/RobotController.cs` | `RobotControl` | `RobotController` | `MoveTo` | 42 | 協定 | 已驗證 | 機器手臂指令以毫米為單位，內部幾何模型用公尺，必須在通訊邊界轉換。 |
 
-類型、狀態的可用值與各欄位填法見 [`SKILL.md`](SKILL.md) 的「AI_NOTES.md 格式」。`行號` 僅供參考，程式碼變動後可能偏移；辨識時以檔案、命名空間、類別、函式搭配說明為準。
+類型、狀態的可用值與各欄位填法見 [`SKILL.md`](SKILL.md) 的「AI_NOTES.md 格式」。`行號` 選填且僅供參考，程式碼變動後可能偏移；辨識時以檔案、命名空間、類別、函式搭配說明為準。
 
 ## 測試
 
@@ -206,6 +209,9 @@ AI 會依 [`references/cleanup.md`](references/cleanup.md) 的流程：先掃描
 | `test03-explicit-comment` | 開發者明確要求加註解 | 加上要求的註解 |
 | `test04-ai-note` | 非顯而易見的工程限制 | 把知識記錄到 `AI_NOTES.md` |
 | `test05-no-duplicate` | 既有筆記已記錄同一問題 | 不建立重複筆記 |
+| `test06-no-change-history` | 指令帶有日期與驗證狀態 | 原始碼不寫變更歷程，狀態記在 AI_NOTES |
+| `test07-cleanup-mode` | 要求整理註解流水帳 | 先確認範圍、只改註解、知識移到 AI_NOTES |
+| `test08-review-report` | 要求審查多餘註解 | 只產出報告，不修改檔案 |
 
 詳細流程（含英文模式的測法）見 [`tests/README.md`](tests/README.md)。建議每個測試都在獨立的分支或測試 repo 中執行。
 

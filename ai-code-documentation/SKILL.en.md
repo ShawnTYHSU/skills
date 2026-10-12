@@ -11,7 +11,7 @@ When the developer explicitly asks for source comments (e.g. "add XML doc commen
 - Do not add comments that explain obvious behavior, such as `// Initialize variables`, `// Check whether connected`, `// Iterate over all items`, `// Return the result`, `// This method is responsible for...`.
 - Do not write lengthy AI explanations in source code, and do not add comments merely because "it is easier to follow with an explanation".
 - Prefer naming, methods, classes, types, and structure that explain themselves.
-- Exception: safety- or hardware-critical warnings may stay in source, condensed to 1–2 lines stating "what must not be done, or else what happens"; put the details in AI_NOTES.
+- Exception: safety- or hardware-critical warnings may stay in source, condensed to 1–2 lines stating "what must not be done, or else what happens"; put the details in AI_NOTES and end the warning with "see docs/AI_NOTES.md". Do not add pointers in source for any other note.
 
 ## Rule 2 — Preserve existing comments
 
@@ -113,7 +113,8 @@ If `docs/AI_NOTES.md` does not exist, create it from this skill's template: `doc
 | `未驗證` | `Unverified` | Not yet confirmed on real hardware or in a real environment |
 | `暫時` | `Temporary` | A stopgap that should later be replaced by a proper solution |
 
-- `Line` is the line of the declaration (not a call site) and is informational only; identify code by file, namespace, class, and function together with the note.
+- `Line` is optional: the line of the declaration (not a call site), informational only; use `—` when unsure or when the file changes often. Identify code by file, class, and function together with the note.
+- Use `—` in `Namespace` when there is no such concept (e.g. a language without namespaces).
 - When there is no corresponding function (e.g. a class or record itself), put `—` in the `Function` column. Several notes that all apply to a class as a whole may be merged into one.
 - Non-code files (XAML, config files, etc.): put `—` in `Namespace` and the resource key (e.g. `x:Key` or `TargetType`) in `Class`; use `—` for both when a note covers the whole file.
 
