@@ -23,11 +23,11 @@ Mapping descriptions that the project convention keeps in resource files (e.g. w
 
 ## Procedure
 
-1. **Scan**: list each file's comment line count and change-history markers (dates, ⚠️/✅, commit hashes, "originally/then/changed to/fixed", etc.), and confirm scope and retention rules with the developer first.
+1. **Scan**: list each file's comment line count and change-history markers (dates, ⚠️/✅, commit hashes, "originally/then/changed to/fixed", etc.), and confirm scope and retention rules with the developer first. A solution file (e.g. `.sln`) may reference projects outside the repository (e.g. a sibling repo); process only files inside the repository and exclude warnings from those external projects during verification.
 2. **Establish the test baseline**: build and run the tests on the unmodified version (e.g. check out main in a separate worktree). Record tests that already fail as known failures in AI_NOTES and report them at the end.
 3. **Batch**: process by project or layer, splitting large files further; under version control, create a new branch and make one commit per batch.
 4. **For each batch**: record the knowledge worth keeping in AI_NOTES first, then delete the source comments; **change only comments, never program behavior**.
-5. **Verify each batch** and commit only if everything passes (do not chain verification and commit with `;`, or a failed verification will still commit):
+5. **Verify each batch** and commit only if everything passes (do not chain verification and commit with `;`, or a failed verification will still commit; every step of a verification script, including regenerating AI_NOTES, must abort on failure):
    - **Only comments changed**: strip comments and blank lines from the before/after versions of each file; they must be identical.
    - **Build and tests** pass; only the known failures from step 2 are allowed, and any other failure stops the cleanup.
    - **References in comments still resolve**: confirm that every reference you added or changed (e.g. `<see cref>`) points to an existing name.
@@ -38,6 +38,9 @@ Mapping descriptions that the project convention keeps in resource files (e.g. w
 ## Common situations
 
 - **Outdated or contradictory comments**: the comment describes behavior that does not match the code (e.g. says "no parameters" while the method has parameters). Delete clearly outdated ones; when behavior is in question (e.g. two places contradict each other and it is unclear which is right), rewrite to match the code and list it in the report for the developer to confirm.
+- **References between comments**: e.g. "same reason as the comment on X", where X's comment has been deleted or condensed. Rewrite the referring comment so it stands on its own.
+- **Contradictory verification status**: e.g. one place says "never tested on hardware" while another records a hardware test result. Remove such status statements from source, record the status once in the AI_NOTES `Status` column, and list it in the report.
+- **Existing AI_NOTES in an older format**: keep every note, convert the title, header, and sections to the current template, and do not start a new file.
 - **Misplaced doc comments**: e.g. two doc comment blocks stacked on one member, one of which actually describes the next method. Move it to the correct member (move comments only, do not change code).
 
 ## .NET / C# projects
@@ -51,5 +54,6 @@ Mapping descriptions that the project convention keeps in resource files (e.g. w
 
 ### Other
 
-- **Checking `<see cref>`**: projects without documentation generation do not warn about broken crefs; build temporarily with documentation generation to check: `dotnet build -p:GenerateDocumentationFile=true`.
+- **Checking `<see cref>`**: projects without documentation generation do not warn about broken crefs; build temporarily with documentation generation to check: `dotnet build -p:GenerateDocumentationFile=true -p:NoWarn=CS1591` (CS1591 is "missing XML comment" and is unrelated to crefs).
+- **Crefs to upper-layer or external types**: a lower-layer project (e.g. Abstractions) cannot reference types in an upper layer (e.g. Core) or another repository, so such `<see cref>` never resolves; use `<c>TypeName</c>` instead.
 - **Members created by source generators**: e.g. `[ObservableProperty]` generates property `InitialValue` from field `initialValue`; put the field name that actually exists in source in the AI_NOTES `Function` column.
