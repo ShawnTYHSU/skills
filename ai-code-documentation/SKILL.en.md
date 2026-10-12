@@ -155,7 +155,9 @@ Information that the project instruction file (e.g. `CLAUDE.md`) explicitly requ
 
 - **Outdated or contradictory comments**: the comment describes behavior that does not match the code (e.g. says "no parameters" while the method has parameters). Delete clearly outdated ones; when behavior is in question (e.g. two places contradict each other and it is unclear which is right), rewrite to match the code and list it in the report for the developer to confirm.
 - **Misplaced doc comments**: e.g. two `<summary>` blocks stacked on one member, one of which actually describes the next method. Move it to the correct member (move comments only, do not change code).
-- **AI_NOTES line numbers**: take the line of the declaration (not a call site); line numbers shift a lot during cleanup, so recompute them at the end of each batch.
+- **AI_NOTES line numbers**: take the line of the declaration (not a call site); line numbers shift a lot during cleanup, so recompute them at the end of each batch. For members created by source generators (e.g. `[ObservableProperty]` generating `InitialValue` from field `initialValue`), put the field name that actually exists in source in the `Function` column.
+- **Non-code files (XAML, config files, etc.)**: put `—` in `Namespace` and the resource key (e.g. `x:Key` or `TargetType`) in `Class`; use `—` for both when a note covers the whole file. Mapping descriptions that the project convention keeps in resource files (e.g. what a palette color is used for, region headings per consuming page) are necessary descriptions and stay.
+- **The test baseline already has failures**: first run the tests on the unmodified version (e.g. check out main in a separate worktree) to confirm the failures pre-exist; afterwards allow only those known failures per batch, and stop without committing if any other failure appears. Do not chain verification and commit with `;`, or a failed verification will still commit. Record known failures in AI_NOTES and report them at the end.
 
 ---
 
