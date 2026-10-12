@@ -46,6 +46,7 @@ AI modifies source code
 2. **Preserve existing human comments**: unless the developer asks, or the comment is actually wrong.
 3. **Record valuable explanations separately**: write them to `docs/AI_NOTES.md`, not as source comments.
 4. **Do not record trivial explanations**: only record information with real engineering value.
+5. **Comments do not record change history**: no date stamps, no "originally… then changed to…", no commit hashes; history belongs in git, and states such as "unverified" go in the AI_NOTES `Status` column.
 
 Exception: when the developer **explicitly asks** for source comments (e.g. "add XML doc comments to this method"), follow the request. Safety-critical or hardware-critical warnings may also stay in source code when necessary.
 
@@ -164,6 +165,16 @@ disable-model-invocation: true
 ```
 
 > `allow_implicit_invocation: false` in `openai.yaml` is an OpenAI/Codex setting; Claude Code does not read it.
+
+### Cleaning up existing comments (cleanup mode)
+
+When a codebase has accumulated changelog-style comments, explicitly ask the AI to clean them up, for example:
+
+```text
+Clean up the changelog-style comments in MyProject following ai-code-documentation; keep only necessary descriptions and parameter definitions
+```
+
+The AI follows the "Cleanup Mode" procedure in `SKILL.md`: scan and confirm scope first, then batch by batch move valuable knowledge to `docs/AI_NOTES.md` and delete the narrative, verifying for each batch that only comments changed and that the build and tests pass, and finally report issues found but not handled (such as comments that contradict the code). Without an explicit request, the AI does not clean up existing comments.
 
 ### Reviewing an existing codebase
 
