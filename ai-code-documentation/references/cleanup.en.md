@@ -23,7 +23,7 @@ Mapping descriptions that the project convention keeps in resource files (e.g. w
 
 ## Procedure
 
-1. **Scan**: list each file's comment line count and change-history markers (dates, ⚠️/✅, commit hashes, "originally/then/changed to/fixed", etc.), and confirm scope and retention rules with the developer first. A solution file (e.g. `.sln`) may reference projects outside the repository (e.g. a sibling repo); process only files inside the repository and exclude warnings from those external projects during verification. Do not scan tools or skills copied into the repository (e.g. `.claude/skills/`).
+1. **Scan**: list each file's comment line count and change-history markers (dates, ⚠️/✅, commit hashes, "originally/then/changed to/fixed", etc.), and confirm scope and retention rules with the developer first. A solution file (e.g. `.sln`) may reference projects outside the repository (e.g. a sibling repo); process only files inside the repository and exclude warnings from those external projects during verification. Do not scan tools or skills copied into the repository (e.g. `.claude/skills/`). XML comments in project files (`.csproj`, `.props`, etc.) can also contain change history; scan them too and include them in the "only comments changed" comparison.
 2. **Establish the test baseline**: build and run the tests on the unmodified version (e.g. check out main in a separate worktree). Record tests that already fail as known failures in AI_NOTES and report them at the end.
 3. **Batch**: process by project or layer, splitting large files further; a small project with few comments can be done in one batch. Under version control, create a new branch and make one commit per batch; if the working tree has untracked files of the developer's, stage only the files you changed (e.g. `git add -u` plus the new AI_NOTES), never `git add -A`.
 4. **For each batch**: record the knowledge worth keeping in AI_NOTES first, then delete the source comments; **change only comments, never program behavior**.
@@ -33,7 +33,7 @@ Mapping descriptions that the project convention keeps in resource files (e.g. w
    - **References in comments still resolve**: confirm that every reference you added or changed (e.g. `<see cref>`) points to an existing name.
    - **Comment syntax is still valid**: when deleting a whole paragraph, do not leave a blank line inside an XML doc comment, or the doc comment breaks (CS1570 in C#).
    - **AI_NOTES line numbers**: line numbers shift a lot during cleanup, so recompute them at the end of each batch for notes that have one; a note whose declaration cannot be found fails verification (usually a misspelled function name).
-6. If the project instruction file says "details are in the source comments", update it to point to `docs/AI_NOTES.md`.
+6. If the project instruction file says "details are in the source comments", update it to point to `docs/AI_NOTES.md`; also remove date stamps and history wording from the instruction file, then scan it again to confirm nothing was missed.
 7. **Report**: list issues found during cleanup that were out of scope and therefore not fixed, such as comments that contradict the code or outdated statements in the project instruction file.
 
 ## Common situations
