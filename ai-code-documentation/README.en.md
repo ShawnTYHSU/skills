@@ -43,9 +43,9 @@ AI modifies source code
 ## Core Rules
 
 1. **Do not add unnecessary comments to source code**: prefer naming, methods, types, and structure that explain themselves.
-2. **Preserve existing human comments**: unless the developer asks, or the comment is actually wrong.
-3. **Record valuable explanations separately**: write them to `docs/AI_NOTES.md`, not as source comments.
-4. **Do not record trivial explanations**: only record information with real engineering value.
+2. **Preserve existing comments**: treat them all as human-written, unless the developer asks or the comment is actually wrong.
+3. **Record only valuable knowledge in AI_NOTES**: only information that cannot be seen from the source and has real engineering value goes in `docs/AI_NOTES.md`, not in source comments.
+4. **Maintain existing notes**: update an existing note for the same issue instead of creating a duplicate; mark notes that no longer apply as Deprecated.
 5. **Comments do not record change history**: no date stamps, no "originally… then changed to…", no commit hashes; history belongs in git, and states such as "unverified" go in the AI_NOTES `Status` column.
 
 Exception: when the developer **explicitly asks** for source comments (e.g. "add XML doc comments to this method"), follow the request. Safety-critical or hardware-critical warnings may also stay in source code when necessary.
@@ -62,6 +62,9 @@ ai-code-documentation/
 ├── README.en.md                  # Documentation (English)
 ├── LICENSE                       # MIT License
 ├── openai.yaml                   # Display name and invocation settings (OpenAI/Codex format)
+├── references/
+│   ├── cleanup.md                # Comment cleanup procedure (loaded by the AI only in cleanup mode)
+│   └── cleanup.en.md             # English translation of the cleanup procedure (for humans)
 ├── docs/
 │   ├── AI_NOTES.md               # AI_NOTES.md template (Traditional Chinese, default)
 │   └── AI_NOTES.en.md            # AI_NOTES.md template (English)
@@ -174,7 +177,7 @@ When a codebase has accumulated changelog-style comments, explicitly ask the AI 
 Clean up the changelog-style comments in MyProject following ai-code-documentation; keep only necessary descriptions and parameter definitions
 ```
 
-The AI follows the "Cleanup Mode" procedure in `SKILL.md`: scan and confirm scope first, then batch by batch move valuable knowledge to `docs/AI_NOTES.md` and delete the narrative, verifying for each batch that only comments changed and that the build and tests pass, and finally report issues found but not handled (such as comments that contradict the code). Without an explicit request, the AI does not clean up existing comments.
+The AI follows the procedure in [`references/cleanup.md`](references/cleanup.md) ([English](references/cleanup.en.md)): scan and confirm scope first, then batch by batch move valuable knowledge to `docs/AI_NOTES.md` and delete the narrative, verifying for each batch that only comments changed and that the build and tests pass, and finally report issues found but not handled (such as comments that contradict the code). Without an explicit request, the AI does not clean up existing comments.
 
 ### Reviewing an existing codebase
 
@@ -190,31 +193,7 @@ The first time something needs to be recorded, the AI creates `docs/AI_NOTES.md`
 | ---- | --------- | ----- | -------- | ---: | ---- | ------ | ---- |
 | `src/RobotController.cs` | `RobotControl` | `RobotController` | `MoveTo` | 42 | Protocol | Verified | Robot commands use millimeters while the internal geometry model uses meters. Conversion is required at the communication boundary. |
 
-**Type**
-
-| English | 繁體中文 | Purpose |
-| ------- | -------- | ------- |
-| `Constraint` | `限制` | Implementation or hardware constraint |
-| `Protocol` | `協定` | Communication or protocol requirement |
-| `Design` | `設計` | Design decision or architecture rationale |
-| `Hardware` | `硬體` | Hardware-specific behavior |
-| `Workaround` | `權宜做法` | Workaround for an external or legacy limitation |
-| `Performance` | `效能` | Performance-related implementation detail |
-| `Compatibility` | `相容性` | Compatibility requirement |
-| `Calibration` | `校正` | Calibration or machine-specific information |
-| `Safety` | `安全` | Safety-critical information |
-
-**Status**
-
-| English | 繁體中文 | Meaning |
-| ------- | -------- | ------- |
-| `Active` | `使用中` | Currently valid |
-| `Deprecated` | `已棄用` | No longer applicable, kept for history |
-| `Verified` | `已驗證` | Confirmed on real hardware or in a real environment (unit tests alone do not count) |
-| `Unverified` | `未驗證` | Not yet confirmed on real hardware or in a real environment |
-| `Temporary` | `暫時` | A stopgap that should later be replaced by a proper solution |
-
-`Line` is informational only and may drift as code changes; identify code by file, namespace, class, and function together with the note.
+See "AI_NOTES.md Format" in [`SKILL.en.md`](SKILL.en.md) for the allowed types and statuses and how to fill each column. `Line` is informational only and may drift as code changes; identify code by file, namespace, class, and function together with the note.
 
 ## Tests
 
@@ -232,9 +211,9 @@ To test English mode, add `AI_NOTES_LANGUAGE: en` to the test repo's `CLAUDE.md`
 
 ## Customization
 
-- **Language**: switch with `AI_NOTES_LANGUAGE` (see [Language Setting](#language-setting)). To add another language, add a template `docs/AI_NOTES.<lang>.md` and update the "語言設定" (Language Setting) and "表格結構" (Table Structure) sections of `SKILL.md`.
-- **Notes location**: defaults to `docs/AI_NOTES.md`. To change it, update every occurrence of the path in `SKILL.md` (and its translation `SKILL.en.md`).
-- **Types / statuses**: can be added or removed in `SKILL.md`, `SKILL.en.md`, and both templates; keep all four consistent.
+- **Language**: switch with `AI_NOTES_LANGUAGE` (see [Language Setting](#language-setting)). To add another language, add a template `docs/AI_NOTES.<lang>.md` and update the "語言設定" (Language Setting) and "欄位" (Columns) sections of `SKILL.md` and `SKILL.en.md`.
+- **Notes location**: defaults to `docs/AI_NOTES.md`. To change it, update every occurrence of the path in `SKILL.md`, `references/cleanup.md`, and `agents/review-ai-comments.md` (and their translations).
+- **Types / statuses**: are defined only in the "欄位" (Columns) section of `SKILL.md` (update the translation `SKILL.en.md` too); the templates do not repeat them.
 
 ## License
 

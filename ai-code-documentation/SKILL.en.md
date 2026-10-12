@@ -2,162 +2,64 @@
 
 > English reference translation of [`SKILL.md`](SKILL.md). AI assistants load `SKILL.md` only; this file is for human readers. When changing the rules, update both files.
 
-## Purpose
+Keep production source code clean and prevent AI-generated explanatory comments from accumulating in the repo. AI-generated explanations, assumptions, and design rationale go in `docs/AI_NOTES.md`, not in source code.
 
-Keep production source code clean and prevent AI-generated explanatory comments from accumulating in the repo.
-
-AI-generated explanations, implementation notes, assumptions, and design rationale should be recorded in:
-
-`docs/AI_NOTES.md`
-
-instead of being written directly into production source code.
-
-These rules apply to all source code unless the developer explicitly asks for source comments.
-
----
-
-# Core Rules
+When the developer explicitly asks for source comments (e.g. "add XML doc comments to this method"), do as asked.
 
 ## Rule 1 — Do not add unnecessary comments to source code
 
-When adding or modifying source code:
+- Do not add comments that explain obvious behavior, such as `// Initialize variables`, `// Check whether connected`, `// Iterate over all items`, `// Return the result`, `// This method is responsible for...`.
+- Do not write lengthy AI explanations in source code, and do not add comments merely because "it is easier to follow with an explanation".
+- Prefer naming, methods, classes, types, and structure that explain themselves.
+- Exception: safety- or hardware-critical warnings may stay in source, condensed to 1–2 lines stating "what must not be done, or else what happens"; put the details in AI_NOTES.
 
-- Do not add comments just to explain obvious code behavior.
-- Do not add comments like:
-  - `// Initialize variables`
-  - `// Check whether connected`
-  - `// Iterate over all items`
-  - `// Return the result`
-  - `// This method is responsible for...`
-- Do not generate lengthy AI explanations in source code.
-- Do not add comments merely because "AI-generated code is easier to follow with explanations".
+## Rule 2 — Preserve existing comments
 
-Prefer making these self-explanatory instead of relying on explanatory comments:
-
-- Naming
-- Methods
-- Classes
-- Types
-- Structure
-
----
-
-# Rule 2 — Preserve existing human comments
-
-Do not remove, rewrite, or replace existing comments to comply with these rules.
-
-Existing comments may be human-written and may contain important engineering knowledge.
+Treat every existing comment as human-written; it may contain important engineering knowledge. Do not remove, rewrite, or replace it to comply with these rules.
 
 Modify an existing comment only when:
 
-- The developer explicitly asks
+- The developer explicitly asks, including asking for a comment cleanup (see "Cleaning up and reviewing existing comments" below)
 - The comment is actually wrong and the fix is necessary
-- The developer asks for a documentation cleanup
 
----
+## Rule 3 — Record only valuable knowledge in AI_NOTES
 
-# Rule 3 — Record valuable explanations separately
+Do not write a note for every function you change. Record only information that cannot be seen by reading the source and has real engineering value, for example:
 
-Some information is valuable but does not need to be embedded in source code.
+- Non-obvious implementation decisions, reasons for an unusual approach
+- Constraints of communication protocols, hardware, or external systems
+- Compatibility requirements, workarounds
+- Assumptions, side effects
+- Undocumented behavior discovered during development or through reverse engineering
 
-For example:
-
-- Non-obvious implementation decisions
-- Communication protocol constraints
-- Hardware constraints
-- Compatibility requirements
-- Workarounds
-- Assumptions
-- Side effects
-- Reasons for an unusual implementation
-- Undocumented behavior discovered during development
-- Behavior obtained through reverse engineering
-- Limitations of external systems
-
-Record these in:
-
-`docs/AI_NOTES.md`
+| No value | Has value |
+| -------- | --------- |
+| This function checks whether the robot is connected. | The robot controller requires coordinates in millimeters even though the internal calculation layer uses meters. |
 
 Do not automatically add such explanations as source comments.
 
----
+## Rule 4 — Maintain existing notes
 
-# Rule 4 — Do not record trivial explanations
+- Before changing source code, check `docs/AI_NOTES.md` for notes that are affected.
+- When a note already covers the same issue, update it instead of creating a duplicate.
+- When a constraint or approach changes, update the note and its `Status`; mark notes that no longer apply as `Deprecated`.
+- Do not record temporary AI reasoning or conversational explanations.
 
-Do not create an AI note for every function you change.
+## Rule 5 — Comments do not record change history
 
-Create an AI note only when the information has meaningful engineering value.
-
-For example, this has **no** value:
-
-> This function checks whether the robot is connected.
-
-But this **does** have value:
-
-> The robot controller requires coordinates in millimeters even though the internal calculation layer uses meters.
-
----
-
-# Rule 5 — Comments do not record change history
-
-Comments describe what the code is and why it is that way, not how it came to be. Change history belongs in git commit messages.
-
-When adding or modifying source code, do not write:
+Comments describe what the code is and why it is that way, not how it came to be. Change history belongs in git commit messages. Do not write:
 
 - Date stamps: `added 2026-09-18`, `(2026-09)`
 - Change narratives: "changed this to…", "originally… then…", "previously misjudged…", "fixed", "was missing before"
 - Stacked status markers: `⚠️ 2026-09-18 …`, `✅ verified`
 - Commit hashes or references to conversations/sessions: "see today's discussion", "last round"
 
-When a status such as "not yet verified" needs to be recorded, put it in the `Status` column of `docs/AI_NOTES.md`, not as a date or emoji in source code.
+When a status such as "not yet verified" needs to be recorded, put it in the `Status` column of AI_NOTES.
 
----
+## Cleaning up and reviewing existing comments
 
-# Cleaning Up Existing Comments (Cleanup Mode)
-
-Only when the developer **explicitly asks** to clean up existing comments (e.g. "remove the changelog-style comments", "trim the comments") may existing comments be modified according to this section. This is the exception to Rule 2. Do not clean up on your own initiative.
-
-## How to handle each comment
-
-| Action | Applies to |
-| ------ | ---------- |
-| **Keep** | One-line description; mapping notes (e.g. the corresponding legacy function or RPC name); units, ranges, meaning of `null`; `<exception>`; TODO/FIXME; license headers |
-| **Condense and keep** | Safety-critical warnings: shorten to 1–2 lines stating "what must not be done, or else what happens"; move details to AI_NOTES |
-| **Move to AI_NOTES, then delete** | Design rationale, protocol or hardware findings, unverified assumptions, incident lessons, differences from external documentation, reasons for deliberately not doing something |
-| **Delete** | Change history listed in Rule 5; restating the code; conversational explanations; descriptions that are outdated or contradict the code (confirm with the developer when it is a contradiction) |
-
-A single comment often mixes several kinds of content and must be split: e.g. "⚠️ Added 2026-09-18: the controller interprets the target as TCP, not yet verified on hardware" → delete the date, record "the controller interprets the target as TCP" in AI_NOTES (status `Unverified`), and keep only a one-line description in source.
-
-## Retention standard for XML doc comments
-
-- `<summary>`: 1–2 lines describing what it does; include mapping notes here.
-- `<param>`, `<returns>`: only when units, coordinate frames, ranges, or the meaning of `null`/defaults are not obvious. Documenting only some parameters is intentional; complete them only if the project enables documentation generation (`GenerateDocumentationFile`) and treats CS1573 as an error.
-- `<exception>`: keep.
-- `<remarks>`: generally move to AI_NOTES; only safety-critical warnings may stay in condensed form.
-
-## Project rules take precedence
-
-Information that the project instruction file (e.g. `CLAUDE.md`) explicitly requires in source stays, minus dates and narrative. For example, if the project requires "hardware constants must state whether a value is official or estimated", keep short labels such as "(official spec)" or "(calibrated on hardware)" and move the calibration story to AI_NOTES.
-
-## Procedure
-
-1. Scan: list each file's comment line count and change-history markers (dates, ⚠️/✅, commit hashes, "originally/then/changed to/fixed", etc.), and confirm scope and retention rules with the developer first.
-2. Batch: process by project or layer, splitting large files further; under version control, create a new branch and make one commit per batch.
-3. For each batch: record the knowledge worth keeping in AI_NOTES first, then delete the source comments; **change only comments, never program behavior**.
-4. Verify each batch:
-   - **Only comments changed**: strip comments and blank lines from the before/after versions of each file; they must be identical.
-   - **Build and tests** pass.
-   - **References in comments still resolve**: confirm that every `<see cref>` or similar reference you added or changed points to an existing name. Projects without documentation generation do not warn about broken crefs; build temporarily with documentation generation to check (e.g. `dotnet build -p:GenerateDocumentationFile=true`).
-5. If the project instruction file says "details are in the source comments", update it to point to `docs/AI_NOTES.md`.
-6. Report: list issues found during cleanup that were out of scope and therefore not fixed, such as comments that contradict the code or outdated statements in the project instruction file.
-
-## Common situations
-
-- **Outdated or contradictory comments**: the comment describes behavior that does not match the code (e.g. says "no parameters" while the method has parameters). Delete clearly outdated ones; when behavior is in question (e.g. two places contradict each other and it is unclear which is right), rewrite to match the code and list it in the report for the developer to confirm.
-- **Misplaced doc comments**: e.g. two `<summary>` blocks stacked on one member, one of which actually describes the next method. Move it to the correct member (move comments only, do not change code).
-- **AI_NOTES line numbers**: take the line of the declaration (not a call site); line numbers shift a lot during cleanup, so recompute them at the end of each batch. For members created by source generators (e.g. `[ObservableProperty]` generating `InitialValue` from field `initialValue`), put the field name that actually exists in source in the `Function` column.
-- **Non-code files (XAML, config files, etc.)**: put `—` in `Namespace` and the resource key (e.g. `x:Key` or `TargetType`) in `Class`; use `—` for both when a note covers the whole file. Mapping descriptions that the project convention keeps in resource files (e.g. what a palette color is used for, region headings per consuming page) are necessary descriptions and stay.
-- **The test baseline already has failures**: first run the tests on the unmodified version (e.g. check out main in a separate worktree) to confirm the failures pre-exist; afterwards allow only those known failures per batch, and stop without committing if any other failure appears. Do not chain verification and commit with `;`, or a failed verification will still commit. Record known failures in AI_NOTES and report them at the end.
+- Only when the developer **explicitly asks** to clean up existing comments (e.g. "remove the changelog-style comments", "trim the comments"), read this skill's `references/cleanup.md` first and follow its procedure. Do not clean up on your own initiative.
+- When the developer asks to find redundant AI comments (report only, no changes), review according to this skill's `agents/review-ai-comments.md`.
 
 ---
 
@@ -165,40 +67,27 @@ Information that the project instruction file (e.g. `CLAUDE.md`) explicitly requ
 
 ## Language Setting
 
-AI_NOTES.md supports two languages:
+Supports `zh-TW` (Traditional Chinese, default) and `en` (English). Use the first one that applies:
 
-| Value | Language | Template |
-| ----- | -------- | -------- |
-| `zh-TW` (default) | Traditional Chinese | this skill's `docs/AI_NOTES.md` |
-| `en` | English | this skill's `docs/AI_NOTES.en.md` |
+1. An explicit instruction from the developer in the conversation, e.g. "Write AI_NOTES in English".
+2. `AI_NOTES_LANGUAGE: en` or `AI_NOTES_LANGUAGE: zh-TW` in the project instruction file (`CLAUDE.md`, `AGENTS.md`, etc.).
+3. The title of an existing `docs/AI_NOTES.md`: `# AI Implementation Notes` means English, `# AI 開發筆記` means Traditional Chinese.
+4. Default: Traditional Chinese.
 
-Determine the language in this order and use the first one that applies:
-
-1. **Explicit instruction from the developer in the conversation**, e.g. "Write AI_NOTES in English".
-2. **Project instruction file setting**: the project's `CLAUDE.md` (or `AGENTS.md`, or whichever project instruction file the tool uses) contains the line:
-   ```text
-   AI_NOTES_LANGUAGE: en
-   ```
-   The value is `zh-TW` or `en`.
-3. **Existing `docs/AI_NOTES.md`**: a title of `# AI Implementation Notes` means English; `# AI 開發筆記` means Traditional Chinese.
-4. **Default**: Traditional Chinese (`zh-TW`).
-
-Rules:
-
-- The chosen language applies to all of AI_NOTES.md: title, rules, table header, types, statuses, and notes.
-- Code identifiers always stay as they appear in the source, e.g. file paths, namespaces, classes, functions, RPC/command names, and setting keys.
-- A single AI_NOTES.md must not mix languages. If the setting (items 1 and 2) differs from the language of the existing file, ask the developer whether to convert the whole file first; do not mix languages on your own.
-- Review reports produced by `agents/review-ai-comments.md` use the same language.
+- The whole file (title, header, types, statuses, notes) uses one language; code identifiers (file paths, namespaces, classes, functions, RPC/command names, setting keys) stay as they appear in the source.
+- If the language from items 1 or 2 differs from the existing file, ask the developer whether to convert the whole file first; do not mix languages.
+- Review reports use the same language.
 
 ## Creating the file
 
-If `docs/AI_NOTES.md` does not exist, create it from the template matching the language setting (drop the final "範例" / "Example" section when copying). The file name is `docs/AI_NOTES.md` for both languages.
+If `docs/AI_NOTES.md` does not exist, create it from this skill's template: `docs/AI_NOTES.md` for Traditional Chinese, `docs/AI_NOTES.en.md` for English, dropping the final "範例" / "Example" section when copying. The file name is `docs/AI_NOTES.md` for both languages.
 
-## Table Structure
+## Columns
 
-| Field | Traditional Chinese | English |
-| ----- | ------------------- | ------- |
-| Header | `檔案 \| 命名空間 \| 類別 \| 函式 \| 行號 \| 類型 \| 狀態 \| 說明` | `File \| Namespace \| Class \| Function \| Line \| Type \| Status \| Note` |
+| Language | Header |
+| -------- | ------ |
+| Traditional Chinese | `檔案 \| 命名空間 \| 類別 \| 函式 \| 行號 \| 類型 \| 狀態 \| 說明` |
+| English | `File \| Namespace \| Class \| Function \| Line \| Type \| Status \| Note` |
 
 `Type` values:
 
@@ -220,17 +109,17 @@ If `docs/AI_NOTES.md` does not exist, create it from the template matching the l
 | ------------------- | ------- | ------- |
 | `使用中` | `Active` | Currently valid |
 | `已棄用` | `Deprecated` | No longer applicable, kept for history |
-| `已驗證` | `Verified` | Confirmed on real hardware or in a real environment |
+| `已驗證` | `Verified` | Confirmed on real hardware or in a real environment; unit tests alone do not count |
 | `未驗證` | `Unverified` | Not yet confirmed on real hardware or in a real environment |
 | `暫時` | `Temporary` | A stopgap that should later be replaced by a proper solution |
 
-- Use `已驗證`/`Verified` only for items confirmed on real hardware or in a real environment; unit tests alone do not count.
-- When there is no corresponding function (e.g. a class or record itself), put `—` in the `函式`/`Function` column.
-- When a class has several notes that all apply to the class as a whole, they may be merged into one note with `—` in the `Function` column.
+- `Line` is the line of the declaration (not a call site) and is informational only; identify code by file, namespace, class, and function together with the note.
+- When there is no corresponding function (e.g. a class or record itself), put `—` in the `Function` column. Several notes that all apply to a class as a whole may be merged into one.
+- Non-code files (XAML, config files, etc.): put `—` in `Namespace` and the resource key (e.g. `x:Key` or `TargetType`) in `Class`; use `—` for both when a note covers the whole file.
 
 ## Grouping when there are many notes
 
-When there are more than about 20 notes, group them under the "Notes" section by project (or module), each group with a `###` heading and its own table, for example:
+When there are more than about 20 notes, group them under the "Notes" section by project (or module), each group with a `###` heading and its own table, sorted by file path within a group. Add new notes to the matching group instead of appending them at the end of the file.
 
 ```markdown
 ## Notes
@@ -242,14 +131,11 @@ When there are more than about 20 notes, group them under the "Notes" section by
 | ... |
 
 ### MyApp.Protocols
-
-| File | ... |
+...
 ```
-
-Sort by file path within a group. Add new notes to the matching group instead of appending them at the end of the file.
 
 ## Writing the Note column
 
-- State facts and reasons, not change history (same as Rule 5). When time context helps the reader, write only things like "confirmed with 9 poses", not "added 2026-09-18".
 - One note covers one topic; two independent findings on the same method become two notes.
+- When time context helps, write only what is useful to the reader (e.g. "cross-checked with 9 poses"), not change history (same as Rule 5).
 - When citing external documentation, give the document name and section so it can be traced.
