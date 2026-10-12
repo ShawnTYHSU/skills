@@ -27,12 +27,12 @@ Mapping descriptions that the project convention keeps in resource files (e.g. w
 2. **Establish the test baseline**: build and run the tests on the unmodified version (e.g. check out main in a separate worktree). Record tests that already fail as known failures in AI_NOTES and report them at the end.
 3. **Batch**: process by project or layer, splitting large files further; under version control, create a new branch and make one commit per batch.
 4. **For each batch**: record the knowledge worth keeping in AI_NOTES first, then delete the source comments; **change only comments, never program behavior**.
-5. **Verify each batch** and commit only if everything passes (do not chain verification and commit with `;`, or a failed verification will still commit; every step of a verification script, including regenerating AI_NOTES, must abort on failure):
+5. **Verify each batch** and commit only if everything passes (do not chain verification and commit with `;`, or a failed verification will still commit; every step of a verification script, including regenerating AI_NOTES, must abort on failure; when reusing a verification script from another project, first confirm every path points to the current repository):
    - **Only comments changed**: strip comments and blank lines from the before/after versions of each file; they must be identical.
    - **Build and tests** pass; only the known failures from step 2 are allowed, and any other failure stops the cleanup.
    - **References in comments still resolve**: confirm that every reference you added or changed (e.g. `<see cref>`) points to an existing name.
    - **Comment syntax is still valid**: when deleting a whole paragraph, do not leave a blank line inside an XML doc comment, or the doc comment breaks (CS1570 in C#).
-   - **AI_NOTES line numbers**: line numbers shift a lot during cleanup, so recompute them at the end of each batch for notes that have one.
+   - **AI_NOTES line numbers**: line numbers shift a lot during cleanup, so recompute them at the end of each batch for notes that have one; a note whose declaration cannot be found fails verification (usually a misspelled function name).
 6. If the project instruction file says "details are in the source comments", update it to point to `docs/AI_NOTES.md`.
 7. **Report**: list issues found during cleanup that were out of scope and therefore not fixed, such as comments that contradict the code or outdated statements in the project instruction file.
 
@@ -55,6 +55,6 @@ Mapping descriptions that the project convention keeps in resource files (e.g. w
 
 ### Other
 
-- **Checking `<see cref>`**: projects without documentation generation do not warn about broken crefs; build temporarily with documentation generation to check: `dotnet build -p:GenerateDocumentationFile=true -p:NoWarn=CS1591` (CS1591 is "missing XML comment" and is unrelated to crefs).
+- **Checking `<see cref>`**: projects without documentation generation do not warn about broken crefs; build temporarily with documentation generation to check: `dotnet build -p:GenerateDocumentationFile=true -p:NoWarn=CS1591` (CS1591 is "missing XML comment" and is unrelated to crefs). If the baseline already has cref issues, check only the files changed in the current batch, fix the existing issues when you reach those files, and report the total at the end.
 - **Crefs to upper-layer or external types**: a lower-layer project (e.g. Abstractions) cannot reference types in an upper layer (e.g. Core) or another repository, so such `<see cref>` never resolves; use `<c>TypeName</c>` instead.
 - **Members created by source generators**: e.g. `[ObservableProperty]` generates property `InitialValue` from field `initialValue`; put the field name that actually exists in source in the AI_NOTES `Function` column.
