@@ -76,7 +76,10 @@ ai-code-documentation/
     ├── test02-important-comment/ # Preserve important human comments
     ├── test03-explicit-comment/  # Add comments when the developer explicitly asks
     ├── test04-ai-note/           # Record non-obvious knowledge in AI_NOTES.md
-    └── test05-no-duplicate/      # Do not create duplicate notes
+    ├── test05-no-duplicate/      # Do not create duplicate notes
+    ├── test06-no-change-history/ # No change history in source
+    ├── test07-cleanup-mode/      # Cleanup mode
+    └── test08-review-report/     # Review produces a report only
 ```
 
 Every test folder has a `README.md` (Chinese) and a `README.en.md` (English).
@@ -155,7 +158,7 @@ The AI uses the first rule that applies:
 
 ### Invocation
 
-Claude Code decides automatically from the `description` in the `SKILL.md` frontmatter and loads the skill when adding, modifying, refactoring, or debugging source code. You can also invoke it manually:
+Claude Code decides automatically from the `description` in the `SKILL.md` frontmatter and loads the skill when adding, modifying, refactoring, or debugging source code, and when asked to clean up or review comments. You can also invoke it manually:
 
 ```text
 /ai-code-documentation
@@ -167,7 +170,7 @@ To **only invoke it manually**, add this to the `SKILL.md` frontmatter:
 disable-model-invocation: true
 ```
 
-> `allow_implicit_invocation: false` in `openai.yaml` is an OpenAI/Codex setting; Claude Code does not read it.
+> `openai.yaml` is an OpenAI/Codex setting file; Claude Code does not read it. Its `allow_implicit_invocation: true` lets Codex invoke the skill automatically as well, matching Claude Code; to make it manual-only, change both.
 
 ### Cleaning up existing comments (cleanup mode)
 
@@ -193,7 +196,7 @@ The first time something needs to be recorded, the AI creates `docs/AI_NOTES.md`
 | ---- | --------- | ----- | -------- | ---: | ---- | ------ | ---- |
 | `src/RobotController.cs` | `RobotControl` | `RobotController` | `MoveTo` | 42 | Protocol | Verified | Robot commands use millimeters while the internal geometry model uses meters. Conversion is required at the communication boundary. |
 
-See "AI_NOTES.md Format" in [`SKILL.en.md`](SKILL.en.md) for the allowed types and statuses and how to fill each column. `Line` is informational only and may drift as code changes; identify code by file, namespace, class, and function together with the note.
+See "AI_NOTES.md Format" in [`SKILL.en.md`](SKILL.en.md) for the allowed types and statuses and how to fill each column. `Line` is optional and informational only, and it may drift as code changes; identify code by file, namespace, class, and function together with the note.
 
 ## Tests
 
@@ -206,6 +209,9 @@ See "AI_NOTES.md Format" in [`SKILL.en.md`](SKILL.en.md) for the allowed types a
 | `test03-explicit-comment` | Developer explicitly requests comments | Add the requested comments |
 | `test04-ai-note` | Non-obvious engineering constraint | Record the knowledge in `AI_NOTES.md` |
 | `test05-no-duplicate` | Existing note already documents the issue | Do not create a duplicate note |
+| `test06-no-change-history` | Instruction mentions dates and verification status | No change history in source; status goes in AI_NOTES |
+| `test07-cleanup-mode` | Developer asks to clean up changelog-style comments | Confirm scope, change only comments, move knowledge to AI_NOTES |
+| `test08-review-report` | Developer asks for a review of redundant comments | Report only, no file changes |
 
 To test English mode, add `AI_NOTES_LANGUAGE: en` to the test repo's `CLAUDE.md` and run the same tests. See [`tests/README.en.md`](tests/README.en.md) for the detailed procedure. Run each test in an isolated branch or test repository.
 

@@ -13,6 +13,9 @@
 | `test03-explicit-comment` | 開發者明確要求加註解 | 加上要求的註解 |
 | `test04-ai-note` | 非顯而易見的工程限制 | 把知識記錄到 `AI_NOTES.md` |
 | `test05-no-duplicate` | 既有筆記已記錄同一問題 | 不建立重複筆記 |
+| `test06-no-change-history` | 指令帶有日期與驗證狀態 | 原始碼不寫變更歷程，狀態記在 AI_NOTES |
+| `test07-cleanup-mode` | 要求整理註解流水帳 | 先確認範圍、只改註解、知識移到 AI_NOTES |
+| `test08-review-report` | 要求審查多餘註解 | 只產出報告，不修改檔案 |
 
 ## 建議測試流程
 

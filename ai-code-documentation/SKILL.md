@@ -1,6 +1,6 @@
 ---
 name: ai-code-documentation
-description: 避免 AI 產生的實作說明留在正式原始碼中。每當要新增、修改、重構或除錯原始碼時使用這個 skill。把非顯而易見的 AI 產生說明記錄到 docs/AI_NOTES.md，而不是寫成原始碼裡的解釋性註解。Keeps AI-generated explanatory comments out of production code; use whenever adding, modifying, refactoring, or debugging source code, and record non-obvious engineering knowledge in docs/AI_NOTES.md instead.
+description: 讓 AI 不把解釋性註解寫進正式原始碼，改把非顯而易見的工程知識記到 docs/AI_NOTES.md。新增、修改、重構或除錯原始碼時使用；開發者要求整理註解流水帳、精簡註解或審查多餘的 AI 註解時也使用。Keeps AI-generated explanatory comments out of production code and records non-obvious engineering knowledge in docs/AI_NOTES.md. Use when adding, modifying, refactoring, or debugging source code, and when asked to clean up, trim, or review redundant comments.
 ---
 
 # AI 程式碼文件規範
@@ -14,7 +14,7 @@ description: 避免 AI 產生的實作說明留在正式原始碼中。每當要
 - 不要為了解釋顯而易見的行為加註解，例如 `// 初始化變數`、`// 檢查是否已連線`、`// 逐一走訪所有項目`、`// 回傳結果`、`// 這個方法負責處理...`。
 - 不要在原始碼裡寫冗長的 AI 說明，也不要只因為「有說明比較好懂」就加註解。
 - 優先用命名、方法、類別、型別與結構讓程式碼自我說明。
-- 例外：安全或硬體關鍵的警告可以留在原始碼，縮成 1～2 行，寫清楚「不可以做什麼、否則會怎樣」，細節寫進 AI_NOTES。
+- 例外：安全或硬體關鍵的警告可以留在原始碼，縮成 1～2 行，寫清楚「不可以做什麼、否則會怎樣」，細節寫進 AI_NOTES，並在警告結尾加上「詳見 docs/AI_NOTES.md」。其他筆記不在原始碼加指標。
 
 ## 規則 2 — 保留既有註解
 
@@ -116,7 +116,8 @@ description: 避免 AI 產生的實作說明留在正式原始碼中。每當要
 | `未驗證` | `Unverified` | 尚未在實機或真實環境確認 |
 | `暫時` | `Temporary` | 權宜性質，之後應該被正式做法取代 |
 
-- `行號` 取宣告處（不是呼叫處），僅供參考；辨識時以檔案、命名空間、類別、函式搭配說明為準。
+- `行號` 選填：填宣告處（不是呼叫處）的行號，僅供參考；不確定或檔案經常變動時填 `—`。辨識時以檔案、類別、函式搭配說明為準。
+- `命名空間` 沒有對應概念時（例如沒有命名空間的語言）填 `—`。
 - 沒有對應函式時（例如類別或 record 本身），`函式` 欄填 `—`。同一個類別有多筆都屬於整個類別的筆記，可以合併成一筆。
 - 非程式碼檔案（XAML、設定檔等）：`命名空間` 填 `—`，`類別` 填資源鍵（例如 `x:Key` 或 `TargetType`）；整份檔案的筆記兩者都填 `—`。
 

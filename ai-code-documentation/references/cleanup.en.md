@@ -9,7 +9,7 @@ Use this procedure only when the developer **explicitly asks** to clean up exist
 | Action | Applies to |
 | ------ | ---------- |
 | **Keep** | One-line description; mapping notes (e.g. the corresponding legacy function or RPC name); units, ranges, meaning of `null`; `<exception>`; TODO/FIXME; license headers |
-| **Condense and keep** | Safety-critical warnings: shorten to 1–2 lines stating "what must not be done, or else what happens"; move details to AI_NOTES |
+| **Condense and keep** | Safety-critical warnings: shorten to 1–2 lines stating "what must not be done, or else what happens"; move details to AI_NOTES and end the warning with "see docs/AI_NOTES.md" |
 | **Move to AI_NOTES, then delete** | Design rationale, protocol or hardware findings, unverified assumptions, incident lessons, differences from external documentation, reasons for deliberately not doing something |
 | **Delete** | Change history listed in Rule 5; restating the code; conversational explanations; descriptions that are outdated or contradict the code (confirm with the developer when it is a contradiction) |
 
@@ -31,7 +31,7 @@ Mapping descriptions that the project convention keeps in resource files (e.g. w
    - **Only comments changed**: strip comments and blank lines from the before/after versions of each file; they must be identical.
    - **Build and tests** pass; only the known failures from step 2 are allowed, and any other failure stops the cleanup.
    - **References in comments still resolve**: confirm that every reference you added or changed (e.g. `<see cref>`) points to an existing name.
-   - **AI_NOTES line numbers**: line numbers shift a lot during cleanup, so recompute them at the end of each batch.
+   - **AI_NOTES line numbers**: line numbers shift a lot during cleanup, so recompute them at the end of each batch for notes that have one.
 6. If the project instruction file says "details are in the source comments", update it to point to `docs/AI_NOTES.md`.
 7. **Report**: list issues found during cleanup that were out of scope and therefore not fixed, such as comments that contradict the code or outdated statements in the project instruction file.
 
